@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}ATA Edu{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+</head>
+<body>
+<header>
+    <a href="/" class="logo">ATA Edu</a>
+    <ul class="menu">
+        {% if request.user.is_authenticated %}
+        <li>
+            <form action="{% url 'logout' %}" method="POST">
+                <button type="submit">Sign out</button>
+                {% csrf_token %}
+            </form>
+        </li>
+        {% else %}
+        <li><a href="{% url 'login' %}">Sign in</a></li>
+        {% endif %}
+    </ul>
+</header>
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+<script>
+    document.addEventListener('DOMContentLoaded', e => {
+        {% block domready %}
+        {% endblock %}
+    })
+</script>
+</body>
+</html>
