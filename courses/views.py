@@ -1,6 +1,7 @@
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Count
 from django.forms import modelform_factory
 from django.urls import reverse_lazy
 from django.views import generic
@@ -8,7 +9,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.base import TemplateResponseMixin
 
 from courses.forms import ModuleFormSet
-from courses.models import Course, Module, Content
+from courses.models import Course, Module, Content, Subject
 
 
 class OwnerMixin:
@@ -127,12 +128,14 @@ class ContentCreateUpdateView(TemplateResponseMixin, generic.View):
             {'form': form, 'object': self.obj}
         )
 
+
 class ContentDeleteView(generic.View):
     def post(self, request, pk):
         content = get_object_or_404(Content, id=pk, module__course__owner=request.user)
         module = content.module
         content.item.delete()
         return redirect('module_content_list', module.id)
+
 
 class ModuleContenListView(TemplateResponseMixin, generic.View):
     template_name = 'courses/manage/module/content_list.html'
@@ -154,3 +157,26 @@ class ContentOrderView(CsrfExemptMixin, JsonRequestResponseMixin, generic.View):
         for pk, order in self.request_json.items():
             Content.objects.filter(id=pk, module__course__owner=request.user).update(order=order)
         return self.render_json_response({'saved': 'OK'})
+
+
+class CourseListView(TemplateResponseMixin, generic.View):
+    model = Course
+    template_name = 'courses/course/list.html'
+
+    def get(self, request, subject=None):
+        subjects = Subject.objects.annotate(total_courses=Count('courses'))
+        courses = Course.objects.annotate(total_modules=Count('modules'))
+
+        if subject:
+            subject = get_object_or_404(Subject, slug=subject)
+            courses = courses.filter(subject=subject)
+
+        return self.render_to_response({
+            'subjects': subjects,
+            'subject': subject,
+            'courses': courses
+        })
+
+class CourseDetailView(generic.DetailView):
+    model = Course
+    template_name = 'courses/course/detail.html'
