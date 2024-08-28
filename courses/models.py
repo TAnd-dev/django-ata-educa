@@ -32,6 +32,11 @@ class Course(models.Model):
     slug = models.SlugField(max_length=256, unique=True)
     overview = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
+    students = models.ManyToManyField(
+        User,
+        related_name='courses_joined',
+        blank=True
+    )
 
     class Meta:
         ordering = ['-created']
@@ -77,6 +82,7 @@ class Content(models.Model):
     class Meta:
         ordering = ['order']
 
+
 class ItemBase(models.Model):
     owner = models.ForeignKey(
         User,
@@ -101,8 +107,10 @@ class Text(ItemBase):
 class File(ItemBase):
     file = models.FileField(upload_to='files')
 
+
 class Image(ItemBase):
     file = models.FileField(upload_to='images')
+
 
 class Video(ItemBase):
     url = models.URLField()

@@ -230,3 +230,16 @@ ul.content-types li {
     background: #efefef;
     padding: 8px 14px;
 }
+
+.helptext {
+    color: #ccc;
+    padding-left: 20px;
+}
+
+.errorlist {
+    color: #ae2c2c;
+}
+
+#id_usable_password, #id_usable_password_helptext, .module form p:nth-child(6) {
+    display: none;
+}
