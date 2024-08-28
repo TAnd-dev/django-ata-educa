@@ -77,6 +77,12 @@ input[type=submit]:hover, a.button:hover {
     background: #3fad37;
 }
 
+input[type=checkbox] {
+    width: auto;
+    clear: none;
+    margin: 3px 0 0 5px;
+}
+
 header {
     background: #4dcc43;
     overflow: auto;
