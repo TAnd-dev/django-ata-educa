@@ -7,6 +7,7 @@ urlpatterns = [
     path('<pk>/edit/', views.CourseUpdateView.as_view(), name='course_edit'),
     path('<pk>/delete/', views.CourseDeleteView.as_view(), name='course_delete'),
     path('<pk>/module/', views.CourseModuleUpdateView.as_view(), name='course_module_update'),
+    path('module/order/', views.ModuleOrderView.as_view(), name='module_order'),
     path(
         'module/<int:module_id>/',
         views.ModuleContenListView.as_view(),
@@ -22,6 +23,7 @@ urlpatterns = [
         views.ContentCreateUpdateView.as_view(),
         name='module_content_update'
     ),
+    path('content/order/', views.ContentOrderView.as_view(), name='content_order'),
     path(
         'content/<int:pk>/delete/',
         views.ContentDeleteView.as_view(),
