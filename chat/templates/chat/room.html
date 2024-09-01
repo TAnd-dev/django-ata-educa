@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat room for {{ course.title }}{% endblock %}
+
+{% block content %}
+<div id="chat">
+    {% for message in latest_messages %}
+    <div class="message {% if message.user == request.user %}me{% else %}other{% endif %}">
+        <strong>{{ message.user.username }}</strong>
+        <span class="date">
+            {{ message.sent_on|date:"Y.m.d H:i A" }}
+        </span>
+        <br/>
+        {{ message.content }}
+    </div>
+    {% endfor %}
+</div>
+<div id="chat-input">
+    <input type="text" id="chat-message-input">
+    <input type="submit" id="chat-message-submit" value="Send">
+</div>
+{% endblock %}
+
+{% block include_js %}
+{{ course.id|json_script:'course-id' }}
+{{ request.user.username|json_script:'request-user' }}
+{% endblock %}
+
+<script>
+
+</script>
+
+{% block domready %}
+console.log('{{ course.id }}');
+const courseId = JSON.parse(
+document.getElementById('course-id').textContent
+);
+const requestUser = JSON.parse(
+document.getElementById('request-user').textContent
+);
+const url = `ws://${window.location.host}/ws/chat/room/${courseId}/`;
+const chatSocket = new WebSocket(url);
+
+chatSocket.onmessage = function (e) {
+const data = JSON.parse(e.data);
+const chat = document.getElementById('chat');
+
+const dateOptions = {hour: 'numeric', minute: 'numeric', hour12: true};
+const datetime = new Date(data.datetime).toLocaleString('en', dateOptions);
+
+const isMe = data.user === requestUser;
+const source = isMe ? 'me' : 'other';
+const name = isMe ? 'Me' : data.user;
+
+chat.innerHTML += `
+<div class="message ${source}">
+    <strong>${name}</strong><span class="date">${datetime}</span>
+    <br/>${data.message}
+</div>`;
+
+
+chat.scrollTop = chat.scrollHeight;
+};
+
+chatSocket.onclose = function (e) {
+console.error('Chat socket closed unexpectedly');
+};
+
+const input = document.getElementById('chat-message-input');
+const submitButton = document.getElementById('chat-message-submit');
+
+submitButton.addEventListener('click', e => {
+const message = input.value;
+if (message) {
+chatSocket.send(JSON.stringify({'message': message}));
+input.value = '';
+input.focus();
+}
+});
+
+input.addEventListener('keypress', e => {
+if (e.key === 'Enter') {
+e.preventDefault();
+submitButton.click();
+}
+});
+{% endblock %}

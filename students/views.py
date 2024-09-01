@@ -61,5 +61,5 @@ class StudentCourseDetailView(LoginRequiredMixin, generic.DetailView):
         if 'module_id' in self.kwargs:
             context['module'] = course.modules.get(id=self.kwargs['module_id'])
         else:
-            context['module'] = course.modules.all()[0]
+            context['module'] = course.modules.first()
         return context
