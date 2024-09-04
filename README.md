@@ -56,7 +56,7 @@ Django ATA Educa is a web application designed to provide an online learning pla
 6. **Run the development server:**
 
     ```bash
-    python manage.py runserver
+    python manage.py runserver --settings=base.settings.local_settings  # Or --settings=base.settings.prod_settings
     
 The application will be available at http://127.0.0.1:8000/.
 
